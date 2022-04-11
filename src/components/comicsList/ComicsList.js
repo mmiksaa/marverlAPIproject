@@ -1,8 +1,13 @@
 import './comicsList.scss';
 import uw from '../../resources/img/UW.png';
 import xMen from '../../resources/img/x-men.png';
+import useMarvelService from '../../services/MarvelService';
 
 const ComicsList = () => {
+  const marvel = useMarvelService();
+  marvel.getAllComics();
+  // marvel.getCharacter();
+
     return (
         <div className="comics__list">
             <ul className="comics__grid">

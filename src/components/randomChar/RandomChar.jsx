@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import MarvelService from '../../services/MarvelService'
+import useMarvelService from '../../services/MarvelService'
 import Spinner from '../spinner/Spinner'
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
@@ -9,48 +9,30 @@ import mjolnir from '../../resources/img/mjolnir.png';
 const RandomChar = () => {
 
   const [char, setChar] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     updateChar();
   }, []);
 
-  const marvelService = new MarvelService();
+  const {loading, error, getCharacter, clearError} = useMarvelService();
 
   const onCharLoaded = (char) => {
     setChar(char);
-    setLoading(false);
-    setError(false);
-  }
-
-  const onCHarLoading = () => {
-    setLoading(true);
-  }
-
-  const onError = () => {
-    this.setState({ error: true, loading: false })
-    setLoading(false);
-    setError(true);
   }
 
   const updateChar = () => {
+    clearError();
+
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-    onCHarLoading();
 
-    marvelService
-      .getCharacter(id)
+    getCharacter(id)
       .then(res => {
-
         res.description = res.description.length > 225 ? `${res.description.slice(0, 222)}...` : res.description
-
         res.description = res.description.length < 1 ? 'No description' : res.description
-
         res.name = (res.name.length > 22) ? `${res.name.slice(0, 21)}...` : res.name
 
         onCharLoaded(res);
-      })
-      .catch(onError);
+      });
   }
 
   const spinner = loading ? <Spinner /> : null;
