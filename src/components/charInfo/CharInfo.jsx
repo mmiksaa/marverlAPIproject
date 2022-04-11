@@ -1,86 +1,71 @@
-import { Component } from 'react';
-import Spinner from '../spinner/Spinner'
-import ErrorMessage from '../errorMessage/ErrorMessage';
-import Skeleton from '../skeleton/Skeleton'
+import { useState, useEffect } from 'react';
+
 import MarvelService from '../../services/MarvelService';
+import Spinner from '../spinner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+import Skeleton from '../skeleton/Skeleton';
 
 import './charInfo.scss';
 
-class CharInfo extends Component {
+const CharInfo = (props) => {
 
-  state = {
-    char: null,
-    loading: false,
-    error: false
-  }
+  const [char, setChar] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  marvelService = new MarvelService();
+  const marvelService = new MarvelService();
 
-  componentDidMount() {
-    this.updateChar();
-  }
+  useEffect(() => {
+    updateChar();
+  }, [props.charId]);
 
-  componentDidUpdate(prevProps) {
-    if (this.props.charId !== prevProps.charId) {
-      this.updateChar();
-    }
-  }
-
-  componentDidCatch(err, info) {
-    console.log(err, info);
-    this.setState({error: true});
-  }
-
-  updateChar = () => {
-    const {charId} = this.props;
-    if(!charId) {
+  const updateChar = () => {
+    const { charId } = props;
+    if (!charId) {
       return;
     }
 
-    this.onCHarLoading();
+    onCHarLoading();
 
-    this.marvelService
+    marvelService
       .getCharacter(charId)
-      .then(this.onCharLoaded)
-      .catch(this.onError)
+      .then(onCharLoaded)
+      .catch(onError)
   }
 
-  onCharLoaded = (char) => {
-    this.setState({ char, loading: false, error: false })
+  const onCharLoaded = (char) => {
+    setChar(char);
+    setLoading(false);
+    setError(false);
   }
 
-  onCHarLoading = () => {
-    this.setState({
-      loading: true
-    })
+  const onCHarLoading = () => {
+    setLoading(true);
   }
 
-  onError = () => {
-    this.setState({ error: true, loading: false })
+  const onError = () => {
+    setLoading(false);
+    setError(true);
   }
 
-  render() {
-    const {char, loading, error} = this.state;
+  const skeleton = char || loading || error ? null : <Skeleton />
+  const spinner = loading ? <Spinner /> : null;
+  const errorMessage = error ? <ErrorMessage /> : null;
+  const content = !(loading || error || !char) ? <View char={char} /> : null;
 
-    const skeleton = char || loading || error ? null : <Skeleton/> 
-    const spinner = loading ? <Spinner /> : null;
-    const errorMessage = error ? <ErrorMessage /> : null;
-    const content = !(loading || error || !char) ? <View char={char}/> : null; 
-        
 
-    return (
-      <div className="char__info">
-        {skeleton}
-        {spinner}
-        {errorMessage}
-        {content}
-      </div>
-    )
-  }
+  return (
+    <div className="char__info">
+      {skeleton}
+      {spinner}
+      {errorMessage}
+      {content}
+    </div>
+  )
 }
 
-const View = ({char}) => {
-  const {name, description, thumbnail, hompage, wiki, comics} = char;
+const View = ({ char }) => {
+  const { name, description, thumbnail, hompage, wiki, comics } = char;
 
   let imgStyle = { 'objectPosition': 'center' };
   if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
@@ -90,7 +75,7 @@ const View = ({char}) => {
   return (
     <>
       <div className="char__basics">
-        <img src={thumbnail} alt="abyss" style={imgStyle}/>
+        <img src={thumbnail} alt="abyss" style={imgStyle} />
         <div>
           <div className="char__info-name">{name}</div>
           <div className="char__btns">
@@ -104,14 +89,14 @@ const View = ({char}) => {
         </div>
       </div>
       <div className="char__descr">
-          {description}
+        {description}
       </div>
       <div className="char__comics">Comics:</div>
       <ul className="char__comics-list">
         {comics.length > 0 ? null : 'This character has no comics'}
         {
           comics.map((item, i) => {
-            if(i >= 10) return;
+            if (i >= 10) return;
 
             return (
               <li className="char__comics-item" key={i}>

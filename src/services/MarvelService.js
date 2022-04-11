@@ -1,4 +1,8 @@
-class MarvelService {
+import {useHttp} from '../hooks/http.hook';
+
+const useMarvelService = () => {
+  const {loading, request, error} = useHttp();
+
   _apiBase = 'https://gateway.marvel.com:443/v1/public/';
   _apiKey = 'apikey=face7fefa784b8a1f3665af5608ad511';
   _baseOffset = 210;

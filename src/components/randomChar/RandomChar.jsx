@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import MarvelService from '../../services/MarvelService'
 import Spinner from '../spinner/Spinner'
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -6,89 +6,84 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
-class RandomChar extends Component {
+const RandomChar = () => {
 
-  state = {
-    char: {},
-    loading: true,
-    error: false
+  const [char, setChar] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    updateChar();
+  }, []);
+
+  const marvelService = new MarvelService();
+
+  const onCharLoaded = (char) => {
+    setChar(char);
+    setLoading(false);
+    setError(false);
   }
 
-  componentDidMount() {
-    this.updateChar();
+  const onCHarLoading = () => {
+    setLoading(true);
   }
 
-  marvelService = new MarvelService();
-
-  onCharLoaded = (char) => {
-    this.setState({char, loading: false, error: false})
+  const onError = () => {
+    this.setState({ error: true, loading: false })
+    setLoading(false);
+    setError(true);
   }
 
-  onCHarLoading = () => {
-    this.setState({
-      loading: true
-    })
-  }
-
-  onError = () => {
-    this.setState({error: true, loading: false})
-  }
-
-  updateChar = () => {
+  const updateChar = () => {
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-    this.onCHarLoading();
+    onCHarLoading();
 
-    this.marvelService
+    marvelService
       .getCharacter(id)
       .then(res => {
-        
+
         res.description = res.description.length > 225 ? `${res.description.slice(0, 222)}...` : res.description
 
         res.description = res.description.length < 1 ? 'No description' : res.description
 
         res.name = (res.name.length > 22) ? `${res.name.slice(0, 21)}...` : res.name
 
-        this.onCharLoaded(res);
+        onCharLoaded(res);
       })
-      .catch(this.onError);
+      .catch(onError);
   }
 
-  render() {
-    const {char, loading, error} = this.state;
+  const spinner = loading ? <Spinner /> : null;
+  const errorMessage = error ? <ErrorMessage /> : null;
+  const content = !(loading || error) ? <View char={char} /> : null;
 
-    const spinner = loading ? <Spinner/> : null;
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const content = !(loading || error) ? <View char={char}/> : null;
+  return (
+    <div className="randomchar">
 
+      {spinner}
+      {errorMessage}
+      {content}
 
-    return (
-      <div className="randomchar">
-
-        {spinner}
-        {errorMessage}
-        {content}
-        
-        <div className="randomchar__static">
-          <p className="randomchar__title">
-            Random character for today!<br />
-            Do you want to get to know him better?
-          </p>
-          <p className="randomchar__title">
-            Or choose another one
-          </p>
-          <button className="button button__main">
-            <div className="inner" onClick={this.updateChar}>try it</div>
-          </button>
-          <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
-        </div>
+      <div className="randomchar__static">
+        <p className="randomchar__title">
+          Random character for today!<br />
+          Do you want to get to know him better?
+        </p>
+        <p className="randomchar__title">
+          Or choose another one
+        </p>
+        <button className="button button__main">
+          <div className="inner" onClick={updateChar}>try it</div>
+        </button>
+        <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
-const View = ({char}) => {
+const View = ({ char }) => {
 
-  const {name, description, thumbnail, homepage, wiki} = char;
+  const { name, description, thumbnail, homepage, wiki } = char;
 
   let imgStyle = { 'objectPosition': 'center' };
   if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
