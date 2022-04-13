@@ -1,9 +1,10 @@
 import './comicsList.scss';
-import uw from '../../resources/img/UW.png';
 import useMarvelService from '../../services/MarvelService';
+import { useState, useEffect } from 'react';
+import {Link} from 'react-router-dom'
+
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import { useState, useEffect } from 'react';
 
 const ComicsList = () => {
   const {getAllComics, loading, error} = useMarvelService();
@@ -28,9 +29,10 @@ const ComicsList = () => {
     if (newComicsList.length < 8) {
       ended = true;
     }
-    setComicsList([...comicsList, ...newComicsList]);
     setnewItemLoading(false);
-    setOffset(offset + 8);
+    console.log(offset);
+    setOffset(offset => offset + 8);
+    setComicsList([...comicsList, ...newComicsList]);
     setComicsEnded(ended);
   }
 
@@ -39,11 +41,11 @@ const ComicsList = () => {
 
       return (
       <li className="comics__item" key={i}>
-          <a href="#">
+          <Link to={`/comics/${item.id}`}>
               <img src={item.thumbnail} alt="ultimate war" className="comics__item-img"/>
               <div className="comics__item-name">{item.title}</div>
-              <div className="comics__item-price">{item.price}$</div>
-          </a>
+              <div className="comics__item-price">{item.price}</div>
+          </Link>
       </li>
       )
     })
@@ -66,7 +68,7 @@ const ComicsList = () => {
         {errorMessage}
         {spinner}
           {content}
-            <button onClick={onRequest} className="button button__main button__long">
+            <button onClick={() => onRequest(offset)} className="button button__main button__long">
                 <div className="inner">load more</div>
             </button>
         </div>
