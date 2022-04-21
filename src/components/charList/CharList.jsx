@@ -44,30 +44,33 @@ const CharList = (props) => {
     itemRefs.current[id].focus();
   }
 
-
+  
+  
   function renderItems(arr) {
     const items = arr.map((item, i) => {
       let imgStyle = { 'objectPosition': 'center' };
       if (item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
         imgStyle = { 'objectPosition': 'left' };
       }
-
+      
       return (
         <li
-          ref={el => itemRefs.current[i] = el}
-          tabIndex={0}
-          key={item.id}
-          className="char__item"
-          onClick={() => {
-            props.onCharSelected(item.id);
-            onActive(i);
-          }}>
+        ref={el => itemRefs.current[i] = el}
+        tabIndex={0}
+        key={item.id}
+        className="char__item"
+        onClick={() => {
+          props.onCharSelected(item.id);
+          onActive(i);
+        }}>
           <img src={item.thumbnail} alt={item.name} style={imgStyle} />
           <div className="char__name">{item.name}</div>
         </li>
       )
     });
 
+    console.log('render');
+    
     return (
       <ul className="char__grid">
         {items}
