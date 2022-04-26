@@ -8,18 +8,36 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 
 import './charSearchForm.scss';
 
+const setContent = (process, Component, data) => {
+  switch (process) {
+    case 'waiting':
+      return Component
+        break;
+    case 'loading':
+      return Component
+        break;
+    case 'confirmed':
+      return Component
+      break;
+    case 'error':
+      return <ErrorMessage / >
+        break;
+    default:
+      throw new Error('unexpected process state');
+  }
+}
+
 const CharSearchForm = () => {
   const [char, setChar] = useState(null);
-  const {loading, error, getCharacterByName, clearError} = useMarvelService();
+  const {getCharacterByName, clearError, process} = useMarvelService();
+  console.log(process);
 
   const updateChar = (name) => {
-    clearError();
-
     getCharacterByName(name)
-        .then(setChar);
+        .then(setChar)
   }
 
-  const errorMessage = error ? <div className="char__search-critical-error"><ErrorMessage /></div> : null;
+  const errorMessage = process === 'error' ? <div className="char__search-critical-error"><ErrorMessage /></div> : null;
   const results = !char ? null : char.length > 0 ?
     <div className="char__search-wrapper">
         <div className="char__search-success">There is! Visit {char[0].name} page?</div>
@@ -49,15 +67,14 @@ const CharSearchForm = () => {
                   <button 
                       type='submit' 
                       className="button button__main"
-                      disabled={loading}>
+                      disabled={process === 'loading'}>
                       <div className="inner">find</div>
                   </button>
               </div>
               <FormikErrorMessage component="div" className="char__search-error" name="charName" />
           </Form>
       </Formik>
-      {results}
-      {errorMessage}
+        {setContent(process, results)}
     </div>
   )
 }

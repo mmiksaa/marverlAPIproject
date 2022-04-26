@@ -5,16 +5,35 @@ import { useState, useEffect } from 'react';
 import {Helmet} from 'react-helmet';
 
 import useMarvelService from '../../services/MarvelService';
-import AppBanner from '../appBanner/AppBanner';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
+import AppBanner from '../appBanner/AppBanner';
+
+const setContent = (process, Component) => {
+  switch (process) {
+    case 'waiting':
+      return <Spinner/>
+        break;
+    case 'loading':
+      return <Spinner/>
+        break;
+    case 'confirmed':
+      return Component
+      break;
+    case 'error':
+      return <ErrorMessage / >
+        break;
+    default:
+      throw new Error('unexpected process state');
+  }
+}
 
 const SinglePage = ({type}) => {
   
   const {id} = useParams();
   const [data, setData] = useState(null);
   const [page, setPage] = useState(null);
-  const {loading, error, getComic, getCharacter, clearError} = useMarvelService();
+  const {getComic, getCharacter, clearError, process, setProcess} = useMarvelService();
 
   useEffect(() => {
     updateData();
@@ -27,10 +46,12 @@ const SinglePage = ({type}) => {
       case 'comic':
         getComic(id)
           .then(onDataLoaded)
+          .then(() => setProcess('confirmed'))
         break;
       case 'char':
         getCharacter(id)
           .then(onDataLoaded)
+          .then(() => setProcess('confirmed'))
     }
   }
 
@@ -46,16 +67,11 @@ const SinglePage = ({type}) => {
     }
   }
 
-  const spinner = loading ? <Spinner /> : null;
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const content = !(loading || error || !data) ? page : null;
-
   return (
     <>
       <AppBanner/>
-      {spinner}
-      {errorMessage}
-      {content}
+      {/* {page} */}
+      {setContent(process, page)}
     </>
   )
 }
