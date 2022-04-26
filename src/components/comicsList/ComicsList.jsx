@@ -30,7 +30,6 @@ const ComicsList = () => {
       ended = true;
     }
     setnewItemLoading(false);
-    console.log(offset);
     setOffset(offset => offset + 8);
     setComicsList([...comicsList, ...newComicsList]);
     setComicsEnded(ended);

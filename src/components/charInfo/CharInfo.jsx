@@ -8,18 +8,16 @@ import Skeleton from '../skeleton/Skeleton';
 import './charInfo.scss';
 
 const CharInfo = (props) => {
-
+  
   const [char, setChar] = useState(null);
-
-  const {loading, error, getCharacter, clearError} = useMarvelService();
+  
+  const {getCharacter, clearError, process, setProcess} = useMarvelService();
 
   useEffect(() => {
     updateChar();
   }, [props.charId]);
 
   const updateChar = () => {
-    clearError();
-
     const { charId } = props;
     if (!charId) {
       return;
@@ -27,24 +25,36 @@ const CharInfo = (props) => {
 
     getCharacter(charId)
       .then(onCharLoaded)
+      .then(() => setProcess('confirmed'))
   }
 
   const onCharLoaded = (char) => {
     setChar(char);
   }
 
-  const skeleton = char || loading || error ? null : <Skeleton />
-  const spinner = loading ? <Spinner /> : null;
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const content = !(loading || error || !char) ? <View char={char} /> : null;
+  const setContent = (process, char) => {
+    switch (process) {
+      case 'waiting' :
+        return <Skeleton />
+        break;
+      case 'loading':
+        return <Spinner />
+        break;
+      case 'confirmed':
+        return <View char={char} />
+        break;
+      case 'error':
+        return <ErrorMessage />
+        break;
+      default:
+        throw new Error('unexpected process state');
+    }
+  }
 
 
   return (
     <div className="char__info">
-      {skeleton}
-      {spinner}
-      {errorMessage}
-      {content}
+      {setContent(process, char)}
     </div>
   )
 }
