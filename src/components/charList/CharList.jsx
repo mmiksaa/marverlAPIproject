@@ -3,6 +3,7 @@ import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import useMarvelService from '../../services/MarvelService';
 import './charList.scss';
+import { useMemo } from 'react';
 
 const setContent = (process, Component, newItemLoading) => {
   switch (process) {
@@ -77,7 +78,7 @@ const CharList = (props) => {
         <li
         ref={el => itemRefs.current[i] = el}
         tabIndex={0}
-        key={item.id}
+        key={i}
         className="char__item"
         onClick={() => {
           props.onCharSelected(item.id);
@@ -96,9 +97,13 @@ const CharList = (props) => {
     )
   }
 
+  const elements = useMemo(() => {
+    return setContent(process, () => renderItems(charList), newItemLoading)
+  }, [process]);
+
   return (
     <div className="char__list">
-      {setContent(process, () => renderItems(charList), newItemLoading)}
+      {elements}
       <button
         className="button button__main button__long"
         disabled={newItemLoading}
